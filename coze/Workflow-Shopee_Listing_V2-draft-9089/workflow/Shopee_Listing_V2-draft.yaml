@@ -1,0 +1,3285 @@
+schema_version: 1.0.0
+name: Shopee_Listing_V2
+id: 7663922908112846886
+description: "Shopee Listing 通用出图 V2"
+mode: workflow
+icon: plugin_icon/workflow.png
+nodes:
+    - id: "100001"
+      type: start
+      title: 开始
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Start-v2.jpg
+      description: "工作流的起始节点，用于设定启动工作流需要的信息"
+      position:
+        x: -171.8198608620904
+        y: 26
+      parameters:
+        node_outputs:
+            competitor_images:
+                type: list
+                items:
+                    type: image
+                    value: null
+                value: null
+            platform:
+                type: string
+                required: true
+                value: null
+                default_value: Shopee
+            points:
+                type: string
+                required: true
+                value: null
+            product_images:
+                type: list
+                items:
+                    type: image
+                    value: null
+                required: true
+                value: null
+            product_name:
+                type: string
+                required: true
+                value: null
+            zhandian:
+                type: string
+                required: true
+                value: null
+    - id: "900001"
+      type: end
+      title: 结束
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-End-v2.jpg
+      description: "工作流的最终节点，用于返回工作流运行后的结果信息"
+      position:
+        x: 7143.3525809660205
+        y: 338.54531263275317
+      parameters:
+        node_inputs:
+            - name: status
+              input:
+                type: string
+                value:
+                    path: status
+                    ref_node: "157190"
+            - name: standard_product_image_url
+              input:
+                type: string
+                value:
+                    path: standard_image_url
+                    ref_node: "157190"
+            - name: competitor_summary
+              input:
+                type: string
+                value:
+                    path: competitor_summary
+                    ref_node: "157190"
+            - name: result_image_urls
+              input:
+                type: list
+                items:
+                    type: string
+                    value: null
+                value:
+                    path: result_image_urls
+                    ref_node: "157190"
+            - name: message
+              input:
+                type: string
+                value:
+                    path: message
+                    ref_node: "157190"
+        terminatePlan: returnVariables
+    - id: "105251"
+      type: batch
+      title: 逐图商品证据提取
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Batch-v2.jpg
+      description: "通过设定批量运行次数和逻辑，运行批处理体内的任务"
+      position:
+        x: 308.1801391379096
+        y: 13.000000000000014
+      canvas_position:
+        x: 292.8285249279522
+        y: 717.2399884400627
+      parameters:
+        batchSize:
+            type: integer
+            value:
+                content: 100
+                rawMeta:
+                    type: 2
+                type: literal
+        concurrentSize:
+            type: integer
+            value:
+                content: 1
+                rawMeta:
+                    type: 2
+                type: literal
+        node_inputs:
+            - name: product_image
+              input:
+                value:
+                    path: product_images
+                    ref_node: "100001"
+        node_outputs:
+            image_evidence_list:
+                value:
+                    type: list
+                    items:
+                        type: string
+                        value: null
+                    value:
+                        path: output
+                        ref_node: "107452"
+      nodes:
+        - id: "107452"
+          type: llm
+          title: 单图商品理解
+          icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+          description: "调用大语言模型,使用变量和提示词生成回复"
+          version: "3"
+          position:
+            x: 0
+            y: 100
+          parameters:
+            fcParamVar:
+                knowledgeFCParam: {}
+            llmParam:
+                - name: apiMode
+                  input:
+                    type: integer
+                    value: "0"
+                - name: frequencyPenalty
+                  input:
+                    type: float
+                    value: "0"
+                - name: maxTokens
+                  input:
+                    type: integer
+                    value: "4096"
+                - name: spCurrentTime
+                  input:
+                    type: boolean
+                    value: false
+                - name: spAntiLeak
+                  input:
+                    type: boolean
+                    value: false
+                - name: thinkingType
+                  input:
+                    type: string
+                    value: enabled
+                - name: responseFormat
+                  input:
+                    type: integer
+                    value: "2"
+                - name: modelName
+                  input:
+                    type: string
+                    value: 豆包·2.0·lite
+                - name: modelType
+                  input:
+                    type: integer
+                    value: "1772546477"
+                - name: generationDiversity
+                  input:
+                    type: string
+                    value: balance
+                - name: parameters
+                  input:
+                    type: object
+                    properties:
+                        max_completion_tokens:
+                            type: integer
+                            value: "0"
+                        reasoning_effort:
+                            type: string
+                            value: medium
+                    value: null
+                - name: prompt
+                  input:
+                    type: string
+                    value: |-
+                        请分析当前这一张自家商品图片。
+
+                        产品名称：{{product_name}}
+                        真实商品资料：{{points}}
+                        当前图片由视觉理解输入 {{current_image}}提供。
+
+                        严格按照系统规定的 JSON 结构输出，不要输出解释、Markdown 或代码围栏。
+                - name: enableChatHistory
+                  input:
+                    type: boolean
+                    value: false
+                - name: chatHistoryRound
+                  input:
+                    type: integer
+                    value: "3"
+                - name: systemPrompt
+                  input:
+                    type: string
+                    value: |-
+                        你是跨境电商商品视觉证据分析师。你只分析当前这一张自家商品图片，目标是帮助后续节点从多张不同形式、可能混杂其他物品的图片中锁定同一个主商品。
+
+                        你不做详情页设计，不写营销文案，不生成图片。你必须区分商品主体、包装、说明书、展示托盘、线材或其他配件、人物、手、背景道具及其他商品，不能把包装盒或配件误判为主商品。
+
+                        分析规则：
+
+                        1. 使用 {{product_name}} 定位目标商品，使用 {{points}} 核对商品事实、款式和明确结构。
+                        2. 当前图片可能是干净商品图、白底图、场景图、人物使用图、局部细节、商品与包装混拍、包装图、说明书、配件、多款混拍、无关图片或模糊图片。
+                        3. 包装盒上的照片和文字只能作为辅助证据，不能代替真实商品实物。
+                        4. 必须分别识别商品主体、包装、说明书、展示托盘、线材、可拆配件、人物、背景道具和其他商品。
+                        5. 可以记录实际可见的颜色、外形、Logo、接口、按钮、部件位置和结构数量，但这些观察只用于外观一致性，不能自动变成营销卖点。
+                        6. points 明确写出的数量、排列、颜色、接口、配件和不可改变结构优先级最高。
+                        7. 图片与 points 冲突时记录冲突，不自行裁决。
+                        8. 无法确定时输出 unknown、null 或空数组，不得猜测。
+                        9. reference_quality 评分：
+                           90–100：完整清楚、真实实物、结构可核对、背景干净；
+                           70–89：商品完整清楚，但有人物、包装或复杂背景；
+                           40–69：只有局部、遮挡较多或角度不利；
+                           0–39：无法可靠识别。
+                        10. recommended_use：
+                           reuse：可直接作干净商品参考；
+                           cutout_source：商品清楚，可直接抠图；
+                           semantic_extract_source：商品能确认，但复杂混拍使普通抠图不足；
+                           evidence_only：只用于补充细节证据；
+                           reject：无关或无法使用。
+
+                        只输出一个合法 JSON，不要 Markdown、代码围栏或解释：
+
+                        {
+                          "image_role": "clean_product|mixed_product_package|detail|usage_scene|package_only|manual_only|accessory_only|multiple_variants|unrelated|unclear",
+                          "contains_target_product": true,
+                          "target_is_physical_product": true,
+                          "target_visibility": 0,
+                          "target_complete": true,
+                          "reference_quality": 0,
+                          "background_complexity": "low|medium|high",
+                          "observed_identity": {
+                            "category": "",
+                            "dominant_colors": [],
+                            "overall_shape": "",
+                            "materials_visually_observed": [],
+                            "logos_or_markings": [],
+                            "controls_ports_connectors": [],
+                            "distinctive_parts": [],
+                            "count_observations": [
+                              {
+                                "part": "",
+                                "count": null,
+                                "confidence": 0
+                              }
+                            ]
+                          },
+                          "non_target_objects": [],
+                          "text_or_package_clues": [],
+                          "conflicts_with_points": [],
+                          "recommended_use": "reuse|cutout_source|semantic_extract_source|evidence_only|reject",
+                          "reason": ""
+                        }
+
+                        所有 0–100 字段必须是整数。没有内容的数组输出 []，无法确定的数量输出 null。
+                - name: stableSystemPrompt
+                  input:
+                    type: string
+                    value: ""
+                - name: canContinue
+                  input:
+                    type: boolean
+                    value: false
+                - name: loopPromptVersion
+                  input:
+                    type: string
+                    value: ""
+                - name: loopPromptName
+                  input:
+                    type: string
+                    value: ""
+                - name: loopPromptId
+                  input:
+                    type: string
+                    value: ""
+            node_inputs:
+                - name: product_name
+                  input:
+                    value:
+                        path: product_name
+                        ref_node: "100001"
+                - name: points
+                  input:
+                    value:
+                        path: points
+                        ref_node: "100001"
+                - name: current_image
+                  input:
+                    type: image
+                    value:
+                        path: product_image
+                        ref_node: "105251"
+                    is_vision: true
+            node_outputs:
+                output:
+                    type: string
+                    value: null
+                reasoning_content:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 180000
+      edges:
+        - source_node: "105251"
+          target_node: "107452"
+          source_port: batch-function-inline-output
+        - source_node: "107452"
+          target_node: "105251"
+          target_port: batch-function-inline-input
+    - id: "151076"
+      type: llm
+      title: AI：多图汇总与主商品判定
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 795.5841540409828
+        y: -13
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: modelType
+              input:
+                type: integer
+                value: "1768187121"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.8·深度思考
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: temperature
+              input:
+                type: float
+                value: "0.5"
+            - name: topP
+              input:
+                type: float
+                value: "1"
+            - name: frequencyPenalty
+              input:
+                type: float
+                value: "0"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: parameters
+              input:
+                type: object
+                properties:
+                    max_completion_tokens:
+                        type: integer
+                        value: "0"
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: |-
+                    请综合以下逐图证据，完成目标商品家族归并、互补证据合并、主外观选择和标准商品参考图策略判断。
+
+                    请依据商品身份不变量判断一致性，不要把可变属性、展示状态或拍摄差异直接当作商品身份冲突。
+
+                    产品名称：
+                    {{product_name}}
+
+                    真实商品资料：
+                    {{points}}
+
+                    逐图证据：
+                    {{image_evidence_list}}
+
+                    严格按照系统规定输出一个合法 JSON 对象，不要输出分析、解释、Markdown 或代码围栏。
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    # 角色
+
+                    你是跨境电商商品身份归并与参考图策略专家。
+
+                    你接收产品名称、真实商品资料和多张图片的逐图证据，需要从异构图片中识别目标商品家族，合并正面、背面、侧面、顶部、底部、内部、接口、开合状态和局部细节等互补证据，选择本次生成使用的主外观版本、标准商品图源和补充参考图。
+
+                    你的任务是基于证据还原商品身份，不是设计商品，也不得猜测图片和资料中没有出现的结构。
+
+                    # 输入
+
+                    产品名称：{{product_name}}
+                    真实商品资料：{{points}}
+                    逐图证据 JSON 数组：{{image_evidence_list}}
+
+                    # 判断框架
+
+                    1. 商品身份不变量
+
+                    用于判断不同图片是否属于同一商品家族，包括：
+
+                    - 核心品类；
+                    - 主要用途；
+                    - 主体结构；
+                    - 工作、安装或开合机制；
+                    - 关键部件拓扑；
+                    - 装配关系；
+                    - 功能关系；
+                    - 共有的内部结构和外部结构。
+
+                    2. 商品可变属性
+
+                    可能随 SKU、外观版本、规格选项、展示状态或拍摄条件变化，包括：
+
+                    - 颜色；
+                    - 花纹；
+                    - 表面纹理；
+                    - 常规尺寸；
+                    - 装饰；
+                    - 非核心标记；
+                    - 拍摄角度；
+                    - 开合状态；
+                    - 内容物摆放状态；
+                    - 使用状态。
+
+                    可变属性差异本身不能证明属于不同商品家族。
+
+                    3. 互补证据
+
+                    不同图片可能分别展示正面、背面、内部、底部、接口、开合方式、局部结构或使用状态。
+
+                    只要商品身份不变量相容，就应将这些图片视为同一商品家族的互补证据，不要求任何单张图片独立展示全部结构。
+
+                    4. 真实冲突
+
+                    只有核心用途、主体结构、工作机制、关键部件拓扑、装配关系或不可同时成立的内部结构互相排斥，才视为商品身份冲突。
+
+                    颜色、花纹、常规尺寸、拍摄角度、开合状态、内容物和场景差异，不属于商品家族冲突。
+
+                    # 证据处理规则
+
+                    1. {{points}} 明确写出的功能、材料、性能、认证、效果、规格、包装和营销声明，是唯一可用于消费者宣传的事实来源。
+
+                    2. {{product_name}} 用于定位目标商品，但可能是俗称、上位类目或简写。只要核心品类和用途相符，可以依据高置信度图片证据补充更具体的商品类别描述。
+
+                    3. 按逐图证据索引逐项评估，优先使用清晰、完整、确实包含真实目标商品且 reference_quality 较高的证据。
+
+                    4. 包装、说明书、标签和印刷文字只能作为辅助线索，真实商品实物证据优先。
+
+                    5. 高置信度证据可以互相补充。低置信度、模糊、严重遮挡或无法确认归属的观察，不得推翻多个高置信度一致观察。
+
+                    6. 不得因颜色、花纹、尺寸、拍摄视角、展示状态、环境或构图差异直接拆分商品家族。
+
+                    7. 不得把不同商品家族或不同外观版本拼接成现实中不存在的混合商品。
+
+                    8. 图片观察只用于商品身份、结构验证和外观保持，不得自动升级为消费者营销文案。
+
+                    9. 当某张图片清晰展示目标商品的背面、侧面、顶部、底部、内部结构、接口、按钮、开合方式、固定配件、安装关系或其他在主图中不可见的重要事实时，必须把它视为高价值互补证据。
+
+                    10. 不得因为某张图片不是正面图、白底图或完整外观图而忽略其结构证据价值。
+
+                    11. 对内部结构、隐藏部件、隔层、接口、开合机构和固定配件，只能记录图片中清晰可见或 {{points}} 明确写出的事实。看不见、被遮挡或无法确认的内容必须省略，不得依据商品类别常识猜测。
+
+                    12. 如果多张图片展示同一主外观版本的不同角度，应优先将这些图片用于补充参考。
+
+                    13. 如果缺少同一主外观版本的某个关键角度，但另一 SKU 图片已被高置信度确认属于同一商品家族，并且该图片清晰展示商品家族共有的结构，可以使用该图片补充共有结构证据。
+
+                    14. 使用其他 SKU 补充共有结构时，只能提取身份不变量。不得把该 SKU 的颜色、花纹、Logo、装饰、尺寸表现或其他可变属性写入选中主外观。
+
+                    # 商品家族与主外观选择
+
+                    1. 先依据商品身份不变量对有效实物证据进行归并，判断是否存在一个与 {{product_name}} 和 {{points}} 相符的目标商品家族。
+
+                    2. 只要能够确认目标商品家族，并找到至少一张可用的真实商品图片，就应继续处理。
+
+                    3. 不要求所有图片表面外观完全一致，也不要求单一外观版本具备全部视角。
+
+                    4. {{product_name}} 或 {{points}} 明确指定具体外观、型号、颜色或规格时，优先选择与其匹配的实物证据。
+
+                    5. 没有明确指定时，选择 reference_quality、商品完整度、主体可见度和结构可验证性综合最高的有效实物图作为主外观。
+
+                    6. 综合质量相同时，选择索引更小的图片。
+
+                    7. 其他属于同一商品家族的图片可以补充共有结构，但主外观的颜色、纹理、花纹、Logo、标记和装饰只能来自选中的主图证据以及与其外观明确一致的证据。
+
+                    8. source_image_index 必须指向选中的主外观真实商品实物图，不能指向纯包装、说明书、广告图或无法确认商品主体的图片。
+
+                    # 补充参考图选择
+
+                    1. supporting_image_indexes 用于选择可以帮助后续生图模型保持真实结构的补充图片。
+
+                    2. 优先选择与 source_image_index 属于同一主外观版本，并能够补充以下信息的图片：
+
+                    - 背面；
+                    - 侧面；
+                    - 顶部；
+                    - 底部；
+                    - 内部结构；
+                    - 开合机构；
+                    - 接口和按钮；
+                    - 固定配件；
+                    - 安装关系；
+                    - 真实使用关系；
+                    - 主图中不可见的关键细节。
+
+                    3. supporting_image_indexes 不得包含 source_image_index。
+
+                    4. 最多选择 3 张信息互补、清晰且高价值的图片。
+
+                    5. 排除以下图片：
+
+                    - 纯包装或纯说明书；
+                    - 严重模糊或遮挡；
+                    - 无法确认属于目标商品；
+                    - 与已有参考图视角高度重复；
+                    - 展示其他商品家族；
+                    - 会造成商品身份或外观混淆的图片。
+
+                    6. 如果同一主外观版本没有关键补充角度，可以选择已确认属于同一商品家族的其他 SKU 图片作为共有结构参考，但必须在 identity_lock 中明确禁止继承该图片的颜色、花纹、Logo、装饰和其他可变属性。
+
+                    7. 当某张图片清晰展示内部结构或隐藏结构，而其他图片没有展示时，只要能够确认其归属，就应优先加入 supporting_image_indexes。
+
+                    # 身份锁规则
+
+                    1. identity_lock 必须先描述商品家族共有的身份不变量，再描述选中主外观的可见属性。
+
+                    2. 商品家族共有结构可以综合多张高置信度互补证据。
+
+                    3. 主外观属性只能依据 source_image_index 对应图片，以及与该外观明确一致的证据。
+
+                    4. 不得把其他外观版本的可变属性混入主外观。
+
+                    5. {{points}} 明确写出的关键数量、排列和结构必须保留。
+
+                    6. {{points}} 未说明的数量或结构，只能在图片证据清晰、可以可靠计数且置信度足够时记录。
+
+                    7. 多张图片对同一数量存在视角遮挡时，应结合互补角度判断，但不得用类别常识补足不可见部件。
+
+                    8. 无法确认的内容必须省略，不得猜测。
+
+                    9. 对内部结构、隔层、接口、开合机构和配件，只能写入参考图片清晰展示或 {{points}} 明确说明的内容。
+
+                    10. identity_lock 必须明确禁止：
+
+                    - 改变核心结构；
+                    - 增加或减少关键部件；
+                    - 复制、合并或拆分重复部件；
+                    - 错位装配；
+                    - 虚构内部结构；
+                    - 增加未提供的配件；
+                    - 混合不同外观版本的可变属性。
+
+                    # confidence 规则
+
+                    confidence 衡量的是：
+
+                    能否确认目标商品家族、选择主外观、选择可靠补充参考图并建立身份锁。
+
+                    confidence 不衡量图片之间的表面一致程度。
+
+                    评分规则：
+
+                    - 90–100：商品家族、主外观和关键身份均清晰可靠，互补证据充分。
+                    - 80–89：能够可靠继续，但存在非关键视图或细节缺失。
+                    - 60–79：目标商品家族大概率正确，但关键身份仍存在实质歧义。
+                    - 0–59：缺少有效实物证据，或者存在无法消解的商品家族冲突。
+
+                    # needs_input 边界
+
+                    只有以下情况才输出 needs_input：
+
+                    1. 没有清楚、真实、可识别的目标商品实物证据。
+
+                    2. 所有实物证据都严重模糊、遮挡或残缺，无法确认核心品类和主体结构。
+
+                    3. 有效证据形成多个身份不变量互相排斥的商品家族，并且依据 product_name 和 points 仍无法确定目标。
+
+                    4. 图片内容与 {{product_name}} 和 {{points}} 的核心品类或用途明显不符。
+
+                    5. 输入明确指定了具体版本，但有效实物证据中不存在匹配对象。
+
+                    6. 关键商品身份存在真实冲突，无法通过证据质量、互补关系或明确输入消解。
+
+                    除以上情况外，优先输出 continue，不要因为颜色、花纹、常规尺寸、角度、开合状态、内容物或其他非关键差异过度拒绝。
+
+                    # 标准商品图策略
+
+                    reuse：
+
+                    存在完整、清楚、主体无遮挡、背景较干净、无其他商品干扰，并且适合作为后续参考图的主外观实物图。
+
+                    cutout：
+
+                    主外观商品完整清楚，但与包装、说明书、展示托盘、配件、人物、手部、道具或复杂背景混在一起，可以直接分离真实商品主体。
+
+                    semantic_extract：
+
+                    目标商品家族和主外观可以确认，但没有可直接复用或简单分离的干净完整图片，需要依据主外观和互补结构证据建立标准参考图。
+
+                    semantic_extract 仍然不得猜测未展示的内部结构、数量、配件或外观。
+
+                    needs_input：
+
+                    无法可靠确认目标商品家族或主外观。
+
+                    # 输出格式
+
+                    只输出一个合法 JSON 对象：
+
+                    {
+                      "decision": "continue|needs_input",
+                      "confidence": 0,
+                      "needs_input_reason": "",
+                      "product_profile": {
+                        "category": "",
+                        "appearance": "",
+                        "shared_structure": [],
+                        "primary_variant": "",
+                        "other_variants": [],
+                        "verified_claims": [],
+                        "verified_specs": [],
+                        "usage_relationship": "",
+                        "included_items": [],
+                        "restrictions": []
+                      },
+                      "identity_lock": "用一段完整中文描述商品家族身份不变量、选中主外观的可见属性、可靠的内部与外部结构和不可改变内容；禁止混入其他外观版本的可变属性；不确定内容不要写入",
+                      "source_image_index": 0,
+                      "supporting_image_indexes": [],
+                      "standardization_mode": "reuse|cutout|semantic_extract|needs_input",
+                      "standardization_reason": ""
+                    }
+
+                    # 输出要求
+
+                    1. source_image_index 和 supporting_image_indexes 均使用从 0 开始的逐图证据数组索引。
+
+                    2. 逐图证据数组中的每一项，对应原始上传图片的相同位置。
+
+                    3. confidence 必须是 0–100 的整数。
+
+                    4. supporting_image_indexes 必须是整数数组，最多包含 3 项，不得包含 source_image_index，不得包含无效索引或重复索引。
+
+                    5. decision=needs_input 时：
+
+                    - source_image_index=-1；
+                    - supporting_image_indexes=[]；
+                    - standardization_mode="needs_input"；
+                    - needs_input_reason 必须说明真实阻塞原因。
+
+                    6. decision=continue 时：
+
+                    - identity_lock 不得为空；
+                    - source_image_index 必须有效；
+                    - standardization_mode 必须是 reuse、cutout 或 semantic_extract；
+                    - supporting_image_indexes 可以为空，但存在高价值互补角度时不得无故遗漏。
+
+                    7. other_variants 只记录其他外观版本的差异，不得把它们写成主外观属性。
+
+                    8. verified_claims 和 verified_specs 只能来自 {{points}} 明确写出的事实，不得把纯图片观察升级为营销声明。
+
+                    9. 只输出 JSON，不要输出分析、解释、Markdown 或代码围栏。
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: product_name
+              input:
+                value:
+                    path: product_name
+                    ref_node: "100001"
+            - name: points
+              input:
+                value:
+                    path: points
+                    ref_node: "100001"
+            - name: image_evidence_list
+              input:
+                type: list
+                items:
+                    type: string
+                    value: null
+                value:
+                    path: image_evidence_list
+                    ref_node: "105251"
+        node_outputs:
+            output:
+                type: string
+                value: null
+            reasoning_content:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "136571"
+      type: code
+      title: 代码：解析商品判定 JSON
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 1240.1772375690107
+        y: 13.000000000000007
+      parameters:
+        code: |-
+            async function main({ params }) {
+              const text = String(params.raw || "").trim()
+                .replace(/^```(?:json)?\s*/i, "")
+                .replace(/\s*```$/, "");
+
+              const data = JSON.parse(text);
+
+              return {
+                decision: String(data.decision || "needs_input"),
+                confidence: Number(data.confidence || 0),
+                needs_input_reason: String(data.needs_input_reason || ""),
+                product_profile: JSON.stringify(data.product_profile || {}, null, 2),
+                identity_lock: String(data.identity_lock || ""),
+                source_image_index: Number.isInteger(data.source_image_index)
+                  ? data.source_image_index
+                  : -1,
+                standardization_mode: String(
+                  data.standardization_mode || "needs_input"
+                ),
+                standardization_reason: String(
+                  data.standardization_reason || ""
+                )
+              };
+            }
+        language: 5
+        node_inputs:
+            - name: raw
+              input:
+                value:
+                    path: output
+                    ref_node: "151076"
+        node_outputs:
+            confidence:
+                type: integer
+                value: null
+            decision:
+                type: string
+                value: null
+            identity_lock:
+                type: string
+                value: null
+            needs_input_reason:
+                type: string
+                value: null
+            product_profile:
+                type: string
+                value: null
+            source_image_index:
+                type: integer
+                value: null
+            standardization_mode:
+                type: string
+                value: null
+            standardization_reas:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "173035"
+      type: condition
+      title: 条件：主商品是否明确
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 1619.5856514911177
+        y: -303.0530997574845
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: decision
+                                ref_node: "136571"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "continue"
+                    - left:
+                        input:
+                            value:
+                                path: confidence
+                                ref_node: "136571"
+                      operator: 14
+                      right:
+                        input:
+                            type: integer
+                            value: 80
+                    - left:
+                        input:
+                            value:
+                                path: source_image_index
+                                ref_node: "136571"
+                      operator: 14
+                      right:
+                        input:
+                            type: integer
+                            value: 0
+                    - left:
+                        input:
+                            value:
+                                path: identity_lock
+                                ref_node: "136571"
+                      operator: 10
+                logic: 2
+    - id: "152788"
+      type: code
+      title: 代码：选择标准图源
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 2092.5271736625295
+        y: -218.35309975748453
+      parameters:
+        code: |-
+            async function main({ params }) {
+              const images = Array.isArray(params.images) ? params.images : [];
+              const index = Number(params.index);
+
+              if (!Number.isInteger(index) || index < 0 || index >= images.length) {
+                throw new Error("source_image_index 超出 product_images 范围");
+              }
+
+              const selected = images[index];
+
+              const url =
+                typeof selected === "string"
+                  ? selected
+                  : selected?.url ||
+                    selected?.image_url ||
+                    selected?.file_url ||
+                    selected?.uri ||
+                    selected?.file?.url ||
+                    "";
+
+              return {
+                source_image: selected,
+                source_image_url: url,
+                source_image_urls: url ? [url] : []
+              };
+            }
+        language: 5
+        node_inputs:
+            - name: images
+              input:
+                value:
+                    path: product_images
+                    ref_node: "100001"
+            - name: index
+              input:
+                value:
+                    path: source_image_index
+                    ref_node: "136571"
+        node_outputs:
+            source_image:
+                type: object
+                value: null
+            source_image_url:
+                type: string
+                value: null
+            source_image_urls:
+                type: list
+                items:
+                    type: string
+                    value: null
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "183194"
+      type: condition
+      title: 条件：标准图策略
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 2516.8627626313537
+        y: -231.05309975748452
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: standardization_mode
+                                ref_node: "136571"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "reuse"
+                logic: 1
+    - id: "108877"
+      type: plugin
+      title: 标准商品图生成
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Plugin-v2.jpg
+      description: "图片模型"
+      position:
+        x: 3790.2290347316607
+        y: 160.94443275316928
+      parameters:
+        apiParam:
+            - name: apiID
+              input:
+                type: string
+                value: "7631560961102528512"
+            - name: apiName
+              input:
+                type: string
+                value: "g2_generate_image"
+            - name: pluginID
+              input:
+                type: string
+                value: "7631560961102512128"
+            - name: pluginName
+              input:
+                type: string
+                value: "GT2_图片生成"
+            - name: pluginVersion
+              input:
+                type: string
+                value: ""
+            - name: tips
+              input:
+                type: string
+                value: ""
+            - name: outDocLink
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: key
+              input:
+                type: string
+                value: ""
+            - name: prompt
+              input:
+                type: string
+                value:
+                    path: std_image_prompt
+                    ref_node: "162643"
+            - name: asyn
+              input:
+                type: boolean
+                value: true
+            - name: image_urls
+              input:
+                value:
+                    path: source_image_urls
+                    ref_node: "152788"
+            - name: ratio
+              input:
+                type: string
+                value: "1:1"
+            - name: resolution
+              input:
+                type: string
+                value: "1K"
+        node_outputs:
+            code:
+                type: integer
+                value: null
+            data:
+                type: object
+                properties:
+                    id:
+                        type: string
+                        value: null
+                    url:
+                        type: string
+                        value: null
+                value: null
+            message:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 600000
+    - id: "162643"
+      type: code
+      title: 组装标准商品图 Prompt
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 3397.1960860956965
+        y: 160.94443275316928
+      parameters:
+        code: |-
+            async function main({ params }) {
+              const productName = String(params.product_name || "").trim();
+              const mode = String(params.mode || "").trim();
+              const identityLock = String(params.identity_lock || "").trim();
+              const points = String(params.points || "").trim();
+
+              const task = {
+                cutout: "Perform product subject isolation. Preserve the complete real product exactly as visible in the reference image. Remove packaging, manuals, display trays, people, hands, props, unrelated products, and environmental clutter. Do not redraw, redesign, or invent product structure.",
+                semantic_extract: "Perform identity-constrained semantic extraction. Use the primary appearance in the reference image to reconstruct one clean, complete, structurally verifiable product reference while preserving product identity. Restore only areas supported by the immutable identity constraints and verified product facts. Do not invent structure, accessories, or appearance."
+              }[mode];
+
+              if (!task) {
+                throw new Error(`不支持的标准图处理模式：${mode}`);
+              }
+
+              return {
+                std_image_prompt: `Edit the reference image only. Do not redesign the product.
+
+            Target product name: ${productName}
+            Processing mode: ${mode}
+            Immutable product identity constraints: ${identityLock}
+            Verified product facts: ${points}
+
+            Task: ${task}
+
+            Keep an accessory only when the verified product facts explicitly identify it as a fixed part of the product. Never add accessories.
+
+            Create one clean internal product reference image for downstream detail-image generation. Show the product complete, centered, unobstructed, uncropped, and clearly outlined, from a front view or the three-quarter view that best verifies its structure. Use a pure white or very light neutral-gray background, soft commercial studio lighting, and realistic materials.
+
+            Do not change the product color, logo, shape, ports, controls, component count, arrangement, relative position, or proportions. Do not fabricate unseen structure. Do not render titles, captions, icons, borders, people, or decorative scenes.`
+              };
+            }
+        language: 5
+        node_inputs:
+            - name: product_name
+              input:
+                value:
+                    path: product_name
+                    ref_node: "100001"
+            - name: mode
+              input:
+                value:
+                    path: standardization_mode
+                    ref_node: "136571"
+            - name: identity_lock
+              input:
+                value:
+                    path: identity_lock
+                    ref_node: "136571"
+            - name: points
+              input:
+                value:
+                    path: points
+                    ref_node: "100001"
+        node_outputs:
+            std_image_prompt:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "107993"
+      type: variable_merge
+      title: 标准商品图 URL
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/VariableMerge-icon.jpg
+      description: "对多个分支的输出进行聚合处理"
+      position:
+        x: 3757.1960860956965
+        y: -264.94478883690743
+      parameters:
+        mergeGroups:
+            - name: Group1
+              variables:
+                - type: string
+                  value:
+                    content:
+                        blockID: "128405"
+                        name: image_url
+                        source: block-output
+                    rawMeta:
+                        type: 1
+                    type: ref
+                - type: string
+                  value:
+                    content:
+                        blockID: "108877"
+                        name: data.url
+                        source: block-output
+                    rawMeta:
+                        type: 1
+                    type: ref
+        node_outputs:
+            Group1:
+                type: string
+                value: null
+    - id: "128405"
+      type: code
+      title: 复用标准图 URL
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 3092.9824452129587
+        y: -445.29911097316085
+      parameters:
+        code: |-
+            async function main({ params }) {
+              return {
+                image_url: params.source_image_url
+              };
+            }
+        language: 5
+        node_inputs:
+            - name: source_image_url
+              input:
+                value:
+                    path: source_image_url
+                    ref_node: "152788"
+        node_outputs:
+            image_url:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "194814"
+      type: llm
+      title: AI：标准商品图身份检查
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 4577.9018538242035
+        y: -687.1075954916043
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: apiMode
+              input:
+                type: integer
+                value: "0"
+            - name: frequencyPenalty
+              input:
+                type: float
+                value: "0"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: thinkingType
+              input:
+                type: string
+                value: enabled
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·2.0·lite
+            - name: modelType
+              input:
+                type: integer
+                value: "1772546477"
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: parameters
+              input:
+                type: object
+                properties:
+                    max_completion_tokens:
+                        type: integer
+                        value: "0"
+                    reasoning_effort:
+                        type: string
+                        value: medium
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: |-
+                    请审核视觉输入中的标准商品图。
+
+                    商品身份锁：{{identity_lock}}
+                    商品档案：{{product_profile}}
+
+                    只输出系统规定的 JSON 对象。
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    你是商品身份一致性审核员。
+
+                    检查视觉输入中的标准商品图是否满足 identity_lock 和 product_profile。
+
+                    只检查：
+
+                    商品类别；
+                    主色；
+                    整体形态；
+                    Logo 或标记；
+                    接口和按钮；
+                    关键部件；
+                    数量；
+                    排列；
+                    相对位置；
+                    是否完整清楚；
+                    是否混入包装、说明书、人物、其他商品或无关配件。
+
+                    不要评估营销美感。
+
+                    只输出合法 JSON：
+
+                    {
+                      "passed": true,
+                      "severity": "none|minor|major",
+                      "issues": [],
+                      "message": ""
+                    }
+
+                    任何类别错误、颜色明显错误、关键数量增减、部件错位、结构变形、商品不完整或混入另一个商品，都必须 passed=false、severity=major。
+
+                    轻微光影或背景差异可以 passed=true。
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: identity_lock
+              input:
+                value:
+                    path: identity_lock
+                    ref_node: "136571"
+            - name: product_profile
+              input:
+                value:
+                    path: product_profile
+                    ref_node: "136571"
+            - name: standard_product_image
+              input:
+                value:
+                    path: data.url
+                    ref_node: "108877"
+                is_vision: true
+        node_outputs:
+            output:
+                type: string
+                value: null
+            reasoning_content:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "153173"
+      type: code
+      title: 代码：解析标准图检查 JSON
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 4889.711831355591
+        y: -523.8075954916044
+      parameters:
+        code: |-
+            async function main({ params }) {
+              const text = String(params.raw || "").trim()
+                .replace(/^```(?:json)?\s*/i, "")
+                .replace(/\s*```$/, "");
+
+              const data = JSON.parse(text);
+
+              return {
+                passed: data.passed === true,
+                severity: String(data.severity || "major"),
+                issues: JSON.stringify(
+                  Array.isArray(data.issues) ? data.issues : []
+                ),
+                message: String(data.message || "")
+              };
+            }
+        language: 5
+        node_inputs:
+            - name: raw
+              input:
+                value:
+                    path: output
+                    ref_node: "194814"
+        node_outputs:
+            issues:
+                type: string
+                value: null
+            message:
+                type: string
+                value: null
+            passed:
+                type: boolean
+                value: null
+            severity:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "149650"
+      type: condition
+      title: 标准商品图是否合格
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 4991.197537561242
+        y: -687.1075954916042
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - {}
+                logic: 2
+    - id: "153579"
+      type: condition
+      title: 条件：是否有竞品图
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 4134.067072309809
+        y: -525.245627954419
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - {}
+                logic: 2
+    - id: "111955"
+      type: llm
+      title: Shopee 详情页设计 V2
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 4202.234898926813
+        y: -289.94478883690743
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: generationDiversity
+              input:
+                type: string
+                value: default_val
+            - name: apiMode
+              input:
+                type: integer
+                value: "0"
+            - name: frequencyPenalty
+              input:
+                type: float
+                value: "0"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "94918"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: thinkingType
+              input:
+                type: string
+                value: disabled
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·2.0·pro
+            - name: modelType
+              input:
+                type: integer
+                value: "1772700462"
+            - name: parameters
+              input:
+                type: object
+                properties:
+                    max_completion_tokens:
+                        type: integer
+                        value: "0"
+                    reasoning_effort:
+                        type: string
+                        value: minimal
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: |-
+                    请根据当前商品真实资料和站点，为同一商品生成一套 6–8 张、1:1  Shopee 详情页图片设计。
+
+                    商品名称：{{product_name}}
+                    商品档案：{{product_profile}}
+                    商品身份锁：{{identity_lock}}
+                    唯一营销事实来源：{{points}}
+                    Shopee 站点：{{zhandian}}
+
+                    人物不是禁止项。请根据商品真实使用关系、人物是否帮助理解用途以及商品风险动态决定。
+
+                    需要穿戴、手持、接触身体、涂抹、操作或需要人物尺度才能理解的商品，前两张至少安排一张正确真人使用图，整套安排 2–3 张真人或手部使用场景。
+
+                    危险、受管制、具有刺激性或需要特殊防护的商品，不得生成轻松生活化人物使用场景。
+
+                    严格保持商品身份、结构和精确部件数量。
+
+                    只输出系统要求的合法 JSON 字符串数组，不要输出说明、推理过程或 Markdown。
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    # 角色定位
+
+                    你是资深 Shopee 跨境电商详情页视觉转化策划师，负责 SG、MY、TH、VN、PH、ID、TW、BR 八个买家市场。
+
+                    你的任务是根据真实商品资料，为同一商品设计 6–8 张完整、连续、具有销售递进关系的 3:4 竖版详情页营销图。
+
+                    每一项设计都将由下游节点编译成目标站点母语文案和英文 AI 生图 Prompt，因此你必须具体设计：
+
+                    - 商品如何呈现；
+                    - 人物是否出现；
+                    - 人物如何正确使用商品；
+                    - 商品与人物、身体、空间或其他物体之间的关系；
+                    - 拍摄机位、景别和构图；
+                    - 本地化环境、光线和配色；
+                    - 当前图片承担的购买决策任务；
+                    - 当前图片必须避免的结构与场景错误。
+
+                    你不能只输出限制清单，也不能套用某个固定品类的功能、档位、参数或场景。
+
+                    # 输入变量
+
+                    商品名称：{{product_name}}
+                    商品档案：{{product_profile}}
+                    商品身份锁：{{identity_lock}}
+                    唯一营销事实来源：{{points}}
+                    Shopee 站点：{{zhandian}}
+
+                    # 信息优先级
+
+                    不同输入发生冲突时，严格按照以下优先级处理：
+
+                    1. {{identity_lock}}：商品身份、结构、精确部件数量、排列、颜色、接口、按钮、Logo和不可变外观。
+                    2. {{product_profile}}：商品类别、真实使用方式、人物关系、接触位置、安装方式、可验证外观和使用限制。
+                    3. {{points}}：唯一允许用于营销文案的功能、材料、性能、效果、规格、配件、认证和卖点事实。
+                    4. 视觉策划：只能在不违反前三项的前提下决定场景、人物、构图、光线和版式。
+
+                    不得为了画面更漂亮而改变商品事实。
+
+                    # 当前图片类型
+
+                    本流程只生成 6–8 张、1:1Shopee 详情页营销图。
+
+                    第一张是详情页首屏 detail hero，不是 Shopee 搜索列表使用的 1:1 商品主图。
+
+                    详情页首屏可以根据商品真实用途使用真人、手部或身体局部。
+
+                    不要在本流程中套用“所有封面必须白底无人”的固定规则。
+
+                    如果以后需要生成 Shopee 搜索列表使用的 1:1 商品主图，应另建独立流程，按照对应站点、店铺类型和类目当时有效的规则处理。
+
+                    # 八站本地化视觉映射
+
+                    SG：
+                    现代都市公寓、HDB 风格住宅、整洁办公室或真实城市生活环境；浅灰、米白、冷调浅木；多元成年消费者；整体高效、克制、精致。
+
+                    MY：
+                    现代热带公寓、排屋或自然居家环境；暖灰、米白、浅咖、绿植和自然日光；多元成年消费者；舒适、亲切、轻奢但不浮夸。
+
+                    TH：
+                    温暖明亮的现代住宅、城市公寓或自然生活空间；暖白、浅木、浅草绿、奶油黄；自然成年消费者；轻盈、亲和、有生活感。
+
+                    VN：
+                    紧凑整洁的现代城市公寓、家庭工作区、卧室、梳妆区或通勤生活环境；暖白、浅木、柔和米灰；年轻、清透、实用。
+
+                    PH：
+                    明亮通风的现代热带住宅、公寓或相关轻户外空间；纯白、浅青、暖米和低饱和浅橙；自然成年消费者；友好、阳光、轻快。
+
+                    ID：
+                    温暖实用的现代住宅、工作区、卧室或收纳空间；暖浅灰、奶油白、浅木；自然得体的成年消费者；可靠、大众、温暖。
+
+                    TW：
+                    现代小户型、公寓、书桌、卧室、梳妆区或城市生活空间；莫兰迪灰、奶白、浅木、雾霾绿；自然成年消费者；细腻、安静、有质感。
+
+                    BR：
+                    明亮现代公寓、阳台、庭院或相关轻户外环境；燕麦白、暖米灰、浅木，使用低饱和绿、珊瑚或蓝色点缀；多元成年消费者；亲和、有活力但不杂乱。
+
+                    不得通过国旗、地标、民族服饰、宗教符号、夸张肤色或刻板面孔表达站点。
+
+                    本地化应通过住宅形态、生活方式、人物状态、软装、光线、色彩和空间习惯自然体现。
+
+                    # 设计规则
+                    第1张承担商品主图/首图作用：消费者应在缩略图状态下快速识别商品。商品主体突出、完整清晰，背景简洁。适合真人使用展示的商品，可以根据品类加入真实自然的本地人物使用场景；不适合人物使用展示的商品，以商品主体和真实使用环境为主。
+
+                    剩余的分别承担核心卖点、结构细节、真人或实际使用场景、尺寸或适用空间、信任与购买决策等不同任务。所有图片均采用1:1方形构图，但不得重复相同场景、镜头或版式。
+
+
+                    # 商品真实性规则
+
+                    1. {{points}} 是功能、材料、性能、效果、规格、认证、包装、配件和消费者文案的唯一事实来源。
+
+                    2. {{identity_lock}} 必须在每一张设计中执行。
+
+                    3. 商品档案可用于理解商品身份、外观、真实使用关系和人物互动方式，但不能把图片观察自动强化成营销承诺。
+
+                    4. 不得增加、减少、复制、合并、拆分、错位或改变商品关键部件。
+
+                    5. 不得改变商品精确数量、排列、颜色、花纹、Logo、接口、按钮、控制区域、连接关系、相对位置和整体比例。
+
+                    6. {{identity_lock}} 或 {{product_profile}}中出现明确部件数量时，每一张展示完整商品的设计都必须写明该精确数量，并要求所有部件清晰、可辨认、无重复和无缺失。
+
+                    7. 需要展示精确数量结构时，采用容易目视计数的正面、接近俯视或轻微三分之四机位，避免极端透视、严重遮挡和部件重叠。
+
+                    8. 包装盒、说明书、充电线、展示托盘和其他配件，只在 points 明确需要展示包装内容或配件清单时出现。
+
+                    9. 不得因为输入图片里出现包装、说明书或配件，就让它们出现在每一张详情图中。
+
+                    10. 不得把不同 SKU 的颜色、花纹、配件、结构或外观混成一个不存在的商品。
+
+                    # 真实使用关系
+
+                    {{product_profile}} 中的 {usage_relationship} 是商品真实使用关系的强制约束。
+
+                    必须准确理解商品在现实中如何被：
+
+                    - 穿戴；
+                    - 握持；
+                    - 携带；
+                    - 涂抹；
+                    - 操作；
+                    - 安装；
+                    - 悬挂；
+                    - 放置；
+                    - 收纳；
+                    - 连接；
+                    - 与人体或其他物体接触。
+
+                    不得根据商品外形自行猜测使用方式。
+
+                    不得让非承重、非支撑用途的功能部件充当桌腿、底座或支撑结构。
+
+                    不得把商品表现成可自行站立的动物、机器人、家具、玩具或装饰摆件，除非商品事实明确说明它本来就是这样使用。
+
+                    需要人物、手部或身体部位才能解释用途时，必须安排正确的人物使用场景，不能为了构图简单把商品改成桌面摆拍。
+
+                    # 人物决策规则
+
+                    人物不是禁止项，也不是每张必需。
+
+                    根据以下三个条件动态决定是否使用人物：
+
+                    1. 人物是否能够帮助消费者理解商品用途；
+                    2. 人物是否能够说明佩戴、接触、操作、尺寸或尺度；
+                    3. 商品是否适合安全、自然地展示真人使用状态。
+
+                    ## 应积极安排人物的情况
+
+                    商品需要穿戴、手持、携带、接触身体、涂抹、操作，或者需要人物尺度才能理解时：
+
+                    - 6–8 张中必须安排 2–3 张真人或手部使用场景；
+                    - 前两张中至少有一张正确使用场景；
+                    - 第一张允许直接采用真人使用英雄图；
+                    - 至少一张清楚说明正确互动和接触关系；
+                    - 至少一张展示目标站点消费者的自然生活使用状态。
+
+                    人物必须真正使用商品，不能只站在商品旁边充当装饰。
+
+                    ## 不需要强行安排人物的情况
+
+                    当人物不能帮助消费者理解用途、尺度、佩戴、操作或使用状态时，不为追求氛围强行加人。
+
+                    可以使用：
+
+                    - 商品英雄展示；
+                    - 真实空间；
+                    - 安装位置；
+                    - 收纳关系；
+                    - 组合方式；
+                    - 尺度参照物；
+                    - 材质细节；
+                    - 包装或配件展示。
+
+                    ## 风险商品人物规则
+
+                    对危险、受管制、具有刺激性、需要专业资质、需要特殊防护或不适合轻松生活化演示的商品：
+
+                    - 不生成轻松、休闲或家庭娱乐式真人使用场景；
+                    - 不得表现徒手接触、吸入、误食、靠近儿童或其他不安全行为；
+                    - 只有 points 明确提供可核验的安全使用条件和防护要求时，才可设计相应规范操作画面；
+                    - 资料不足时采用无人商品展示、包装信息、标签信息、适用环境或合规细节图。
+
+                    ## 人物呈现要求
+
+                    人物必须是符合目标站点日常生活状态的自然成年消费者。
+
+                    人物五官、肤色、发型、穿着和生活环境应自然符合目标市场，但不得使用刻板化民族特征。
+
+                    人物动作必须正确、自然、可信。
+
+                    商品仍然是画面主角，人物不能遮挡商品关键结构。
+
+                    商品与人物之间的佩戴、接触、握持、涂抹、操作、安装或携带关系必须清晰可见。
+
+                    相邻人物图必须改变环境、景别、人物姿态、机位或使用阶段，不能连续生成同一个人物、同一个房间和同一个动作。
+
+                    # 6–8 张递进结构
+
+                    必须包含以下六个互不重复的购买决策任务。
+
+                    ## 第一眼价值
+
+                    让消费者立即看懂商品是什么，以及最核心且已证实的价值。
+
+                    对需要穿戴、接触身体、手持、涂抹或操作才能理解的商品，优先采用正确真人使用英雄图。
+
+                    对不需要人物的商品，采用高质量商品英雄视角或真实应用环境。
+
+                    ## 核心收益
+
+                    从 points 中选择最重要的一个卖点。
+
+                    用真实使用状态、人物互动、商品结构或可见证据解释该卖点，不能只写口号。
+
+                    ## 事实证明
+
+                    使用结构、细节、操作状态、组合关系、实物信息或正确使用过程，证明另一个已确认卖点。
+
+                    不得使用虚构的内部结构、科学示意图或未经确认的效果机制。
+
+                    ## 使用理解
+
+                    根据真实商品动态选择：
+
+                    - 真人穿戴；
+                    - 手部操作；
+                    - 正确涂抹；
+                    - 安装过程；
+                    - 收纳过程；
+                    - 携带方式；
+                    - 使用前准备；
+                    - 商品与人体或其他物体的正确接触关系。
+
+                    让消费者看懂怎么用、怎么接触、朝向如何、尺度如何。
+
+                    ## 细节信任
+
+                    展示影响购买判断的真实细节，例如：
+
+                    - 做工；
+                    - 材质纹理；
+                    - 开合方式；
+                    - 控制区域；
+                    - 接口；
+                    - 连接位置；
+                    - 内部空间；
+                    - 边角；
+                    - 配件关系；
+                    - 其他已确认细节。
+
+                    只选择当前商品真实存在且有购买价值的内容，不得套用固定品类结构。
+
+                    ## 场景体验与收尾
+
+                    把商品放入目标站点自然可信的生活、工作、出行、护理、收纳或使用环境。
+
+                    展示消费者拥有商品后的真实使用状态与整体价值。
+
+                    可以使用人物中景、局部使用特写、空间全景或商品主导的生活方式画面。
+
+                    不得制作未经证实的功效对比。
+
+                    # 第七、第八张启用条件
+
+                    只有 points 明确提供对应事实时，才可以增加：
+
+                    7. 规格、适配、选型、尺寸或护理说明；
+                    8. 包装内容、配件清单、下单确认或使用提醒。
+
+                    资料不足就只输出六张。
+
+                    不得为了凑数量虚构功能、规格、配件、效果或使用方式。
+
+                    同一卖点不得换句话重复出现在多张图中。
+
+                    # 视觉风格
+
+                    整套统一使用真实商业产品摄影和成熟 Shopee 详情页视觉设计。
+
+                    要求：
+
+                    - 真实摄影感；
+                    - 电商专业精修；
+                    - 柔和自然光或合理商业布光；
+                    - 材质纹理真实；
+                    - 产品边缘清晰；
+                    - 色彩自然通透；
+                    - 对比度适中；
+                    - 适合手机端连续滑动；
+                    - 商品、人物和环境比例合理；
+                    - 整套字体、色彩、圆角、图标和留白保持统一。
+
+                    禁止：
+
+                    - 卡通；
+                    - 动漫；
+                    - 手绘；
+                    - 水彩；
+                    - 低质量 3D 建模感；
+                    - 塑料玩具化质感；
+                    - 过度磨皮；
+                    - 身体结构错误；
+                    - 手指错误；
+                    - 商品悬浮失重；
+                    - 商品变形成其他物体；
+                    - 无意义道具堆积；
+                    - 场景抢夺商品主体；
+                    - 相邻图片构图高度重复。
+
+                    # 消费者文案
+
+                    每张只规划：
+
+                    - 一个短主标题；
+                    - 一个可选副标题；
+                    - 最多三个短标注。
+
+                    当前节点先输出中文消费者文案源，后续“本地化与生图 Prompt 编译”节点负责改写成目标站点母语。
+
+                    所有文案只能来自 points。
+
+                    不得生成以下内容，除非 points 提供可核验、合法且适合对应站点的事实：
+
+                    - 最高级；
+                    - 绝对化承诺；
+                    - 医疗治疗；
+                    - 疗效保证；
+                    - 安全保证；
+                    - 官方认证；
+                    - 永久有效；
+                    - 100%结果；
+                    - 虚构销量；
+                    - 虚构评价；
+                    - 价格折扣；
+                    - 售后承诺。
+
+                    不得制作误导性的前后对比。
+
+                    # 每项设计字符串必须包含
+
+                    1. 消费者文案源：
+                       - 主标题；
+                       - 可选副标题；
+                       - 最多三个短标注。
+
+                    2. 画面目标：
+                       - 当前图片要让消费者理解什么；
+                       - 当前图片解决什么购买疑问。
+
+                    3. 商品呈现：
+                       - 完整商品或局部细节；
+                       - 商品角度；
+                       - 商品朝向；
+                       - 真实动作或状态；
+                       - identity_lock 如何执行；
+                       - 精确部件数量如何保持。
+
+                    4. 人物与场景：
+                       - 真人、手部、身体局部或无人；
+                       - 人物动作；
+                       - 商品与人物的接触关系；
+                       - 使用环境；
+                       - 道具；
+                       - 站点本地化氛围；
+                       - 为什么当前图片需要或不需要人物。
+
+                    5. 构图：
+                       - 固定 1:1；
+                       - 景别；
+                       - 机位；
+                       - 商品主体占比；
+                       - 文字区域；
+                       - 信息层级；
+                       - 与相邻图片的差异。
+
+                    6. 视觉风格：
+                       - 真实商业摄影；
+                       - 光线；
+                       - 色温；
+                       - 材质；
+                       - 背景；
+                       - 整套统一规则。
+
+                    7. 本图防错：
+                       - 只写与当前图片有关的结构、数量、人物、接触、遮挡、文字和场景风险；
+                       - 不得输出与当前商品无关的通用禁止清单。
+
+                    # 内部标签禁止
+
+                    输出字符串中不得出现以下可能污染最终图片的内部词语：
+
+                    第几屏
+                    引流屏
+                    功能转化屏
+                    场景体验屏
+                    信任促单屏
+                    模块
+                    内部用途
+                    销售目标
+                    screen
+                    module
+                    layout
+                    page type
+
+                    不得要求图片显示这些词语。
+
+                    # 输出格式
+
+                    只输出一个合法 JSON 字符串数组。
+
+                    数组包含 6–8 个非空字符串。
+
+                    数组顺序就是详情页图片顺序。
+
+                    每个字符串必须是一张图片的完整、具体设计，不是标题列表、摘要或抽象分析。
+
+                    每个字符串建议 350–700 个中文字符。
+
+                    不要输出 Markdown。
+
+                    不要输出外层对象。
+
+                    不要输出解释、推理过程或前后说明。
+
+                    正确转义字符串中的双引号、换行符和反斜杠。
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: product_name
+              input:
+                value:
+                    path: product_name
+                    ref_node: "100001"
+            - name: product_profile
+              input:
+                value:
+                    path: product_profile
+                    ref_node: "136571"
+            - name: identity_lock
+              input:
+                value:
+                    path: identity_lock
+                    ref_node: "136571"
+            - name: points
+              input:
+                value:
+                    path: points
+                    ref_node: "100001"
+            - name: zhandian
+              input:
+                value:
+                    path: zhandian
+                    ref_node: "100001"
+        node_outputs:
+            output:
+                type: string
+                value: null
+            reasoning_content:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "183337"
+      type: code
+      title: 代码解析设计数组
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 4627.836982714392
+        y: -263.94478883690743
+      parameters:
+        code: |-
+            async function main({ params }) {
+              const text = String(params.raw || "")
+                .trim()
+                .replace(/^```(?:json)?\s*/i, "")
+                .replace(/\s*```$/, "");
+
+              const list = JSON.parse(text);
+
+              if (!Array.isArray(list) || list.length < 6 || list.length > 8) {
+                throw new Error("详情页设计必须是 6–8 项 JSON 数组");
+              }
+
+              const clean = list.map((item, index) => {
+                if (typeof item !== "string" || !item.trim()) {
+                  throw new Error(`第 ${index + 1} 项不是非空字符串`);
+                }
+                return item.trim();
+              });
+
+              return {
+                design_list: clean
+              };
+            }
+        language: 5
+        node_inputs:
+            - name: raw
+              input:
+                value:
+                    path: output
+                    ref_node: "111955"
+        node_outputs:
+            design_list:
+                type: list
+                items:
+                    type: string
+                    value: null
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "184039"
+      type: batch
+      title: 批处理节点：逐张详情图生成
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Batch-v2.jpg
+      description: "通过设定批量运行次数和逻辑，运行批处理体内的任务"
+      position:
+        x: 5460.523224024475
+        y: -263.9447888369074
+      canvas_position:
+        x: 5179.13636464373
+        y: 440.3892569590598
+      parameters:
+        batchSize:
+            type: integer
+            value:
+                content: 8
+                rawMeta:
+                    type: 2
+                type: literal
+        concurrentSize:
+            type: integer
+            value:
+                content: 1
+                rawMeta:
+                    type: 2
+                type: literal
+        node_inputs:
+            - name: design_item
+              input:
+                value:
+                    path: design_list
+                    ref_node: "183337"
+        node_outputs:
+            result_image_urls:
+                value:
+                    type: list
+                    items:
+                        type: string
+                        value: null
+                    value:
+                        path: data.url
+                        ref_node: "104951"
+      nodes:
+        - id: "180300"
+          type: llm
+          title: 本地化与生图 Prompt 编译
+          icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+          description: "调用大语言模型,使用变量和提示词生成回复"
+          version: "3"
+          position:
+            x: 43.881547734604084
+            y: 73.99999999999994
+          parameters:
+            fcParamVar:
+                knowledgeFCParam: {}
+            llmParam:
+                - name: generationDiversity
+                  input:
+                    type: string
+                    value: default_val
+                - name: apiMode
+                  input:
+                    type: integer
+                    value: "0"
+                - name: frequencyPenalty
+                  input:
+                    type: float
+                    value: "0.2"
+                - name: maxTokens
+                  input:
+                    type: integer
+                    value: "93918"
+                - name: spCurrentTime
+                  input:
+                    type: boolean
+                    value: false
+                - name: spAntiLeak
+                  input:
+                    type: boolean
+                    value: false
+                - name: thinkingType
+                  input:
+                    type: string
+                    value: enabled
+                - name: responseFormat
+                  input:
+                    type: integer
+                    value: "2"
+                - name: modelName
+                  input:
+                    type: string
+                    value: 豆包·2.0·lite
+                - name: modelType
+                  input:
+                    type: integer
+                    value: "1772546477"
+                - name: parameters
+                  input:
+                    type: object
+                    properties:
+                        max_completion_tokens:
+                            type: integer
+                            value: "0"
+                        reasoning_effort:
+                            type: string
+                            value: medium
+                    value: null
+                - name: prompt
+                  input:
+                    type: string
+                    value: |-
+                        请将当前单张详情图设计编译为一条可以直接交给英文生图模型的完整 Prompt。
+
+                        先锁定商品身份、精确部件数量和真实使用关系，再编译人物、场景和构图。
+
+                        如果当前设计中的摆放、姿态、人物要求、支撑方式或使用方式与商品身份锁和商品档案冲突，请静默纠正冲突部分，不要照错执行。
+
+                        当前设计：{{design}}
+                        商品身份锁：{{identity_lock}}
+                        商品档案（其中 usage_relationship 是强制物理使用关系）：{{product_profile}}
+                        站点：{{zhandian}}
+
+                        画面描述和控制指令全部使用英文。
+
+                        只有实际显示在图片上的消费者文案使用目标站点母语。
+
+                        只输出一条纯文本生图 Prompt，不输出分析、翻译过程、JSON或Markdown。
+                - name: enableChatHistory
+                  input:
+                    type: boolean
+                    value: false
+                - name: chatHistoryRound
+                  input:
+                    type: integer
+                    value: "3"
+                - name: systemPrompt
+                  input:
+                    type: string
+                    value: |
+                        # 角色
+
+                        你是 Shopee 八站母语级电商文案编辑与 AI image-generation prompt compiler。
+
+                        你接收一张中文详情图设计稿、商品身份锁、商品档案和生图节点提供的多张商品参考图信息，将消费者可见文案改写为目标站点自然母语，并把画面控制信息编译成一条可以直接交给国际生图模型的英文 Prompt。
+
+                        你不是逐字翻译器，也不能重新发明商品、卖点、结构、规格、精确数量、内部结构、配件、使用方式或营销承诺。
+
+                        “英文 Prompt”只指画面描述、摄影指令、商品约束和禁止事项使用英文，不代表消费者可见文案使用英文。除 SG 和 PH 外，不得因为上下文、设计稿或控制指令是英文，就把消费者可见文案保留或改写成英文。
+
+                        # 输入
+
+                        当前单张设计：{{design}}
+                        商品身份锁：{{identity_lock}}
+                        商品档案：{{product_profile}}
+                        站点：{{zhandian}}
+
+                        # 指令优先级
+
+                        当不同输入发生冲突时，严格按照以下优先级处理：
+
+                        1. {{identity_lock}}：商品身份、关键结构、精确部件数量、排列、颜色、花纹、Logo、接口、按钮、内部结构和不可变外观。
+
+                        2. {{product_profile}}：商品类别、共有结构、真实使用方式、人物关系、接触位置、安装方式、固定配件和可验证外观。
+
+                        3. {{design}}：当前图片的销售任务、消费者文案、场景方向和构图建议。
+
+                        {{design}} 只是视觉设计建议，不是商品事实。
+
+                        如果 {{design}} 中的商品结构、内部结构、部件数量、配件、摆放、人物、姿态、朝向、支撑关系或使用方式与 {{identity_lock}} 或 {{product_profile}} 冲突，必须静默纠正错误部分。
+
+                        纠正时保留当前图片的销售任务、文案主题和整体视觉方向，不得照着错误商品关系执行，也不得在输出中解释纠正过程。
+
+                        # 目标站点语言硬映射（最高优先级）
+
+                        SG：自然简洁的新加坡电商英语。
+
+                        MY：自然 Bahasa Malaysia，不使用印度尼西亚地区词汇。
+
+                        TH：自然现代泰语，词序符合泰国消费者购物表达，完整保留泰文元音符号和声调符号。
+
+                        VN：带完整声调的自然越南语，使用越南消费者常见的电商商品表达，避免中文式直译。
+
+                        PH：自然友好的菲律宾电商英语，不自行混入 Taglish。
+
+                        ID：自然标准 Bahasa Indonesia，不使用马来西亚马来语地区词汇。
+
+                        TW：台湾繁体中文和当地常用商品表达，不出现简体中文或大陆地区用语。
+
+                        BR：自然巴西葡萄牙语 pt-BR，不使用欧洲葡萄牙语表达。
+
+                        消费者可见文案的语言只能由 {{zhandian}} 决定，不得由商品名称、原始文案语言、设计稿语言、画面指令语言、参考图文字或模型习惯决定。
+
+                        如果当前设计中的消费者文案不是目标站点语言，必须先完成母语级改写，再编译英文画面指令。
+
+                        TH、VN、MY、ID、TW、BR 的消费者文案不得输出为英语；真实品牌、型号、通用数字和单位除外。SG 和 PH 才允许消费者文案使用英语。
+
+                        # 文案本地化规则
+
+                        1. 从当前设计中提取一个主标题、一个可选副标题和最多两个短标注。
+
+                        2. 先严格根据 {{zhandian}} 确定唯一目标语言，再对消费者文案进行母语级改写，不得逐字翻译。
+
+                        3. 即使当前设计稿中的消费者文案已经是英语或中文，只要与目标站点语言不一致，也必须改写为目标站点语言；不得沿用原文语言。
+
+                        4. 优先采用目标市场消费者熟悉、自然、简洁、适合手机端阅读的商品表达。
+
+                        5. 商品名称应符合当地常用叫法，不得生硬拼接中文商品名称。
+
+                        6. 保持品牌、型号、数字、单位、限定条件和原有宣传强度。
+
+                        7. 不得补充输入中没有的功能、容量、效果、材料、认证、安全保证、促销或售后承诺。
+
+                        8. 输出前静默检查目标语言的语法、拼写、词序、地区词汇、大小写、标点和自然度。
+
+                        9. 如果原文直译后生硬、冗长或不符合当地表达，应在不改变事实的前提下缩短和改写。
+
+                        10. 消费者文案必须适合1:1方形电商图片阅读，避免过长标题、大段正文和复杂从句。
+
+                        11. 不要输出语言检查过程、翻译解释或原文对照。
+
+                        # 多张商品参考图与身份锁
+
+                        1. 生图节点提供的参考图共同用于锁定商品身份。
+
+                        2. 参考图数组中的标准商品图或主参考图具有最高外观优先级。
+
+                        3. 其他参考图只用于补充主参考图中不可见的背面、侧面、顶部、底部、内部、接口、按钮、开合方式、固定配件、安装关系和局部细节。
+
+                        4. 必须保持参考图和身份锁中已经确认的真实：
+
+                        - 商品类别；
+                        - 整体轮廓；
+                        - 主外观颜色和花纹；
+                        - Logo 与标记；
+                        - 接口和按钮；
+                        - 控制区域；
+                        - 外部结构；
+                        - 已验证的内部结构；
+                        - 精确部件数量；
+                        - 部件排列；
+                        - 相对位置；
+                        - 装配关系；
+                        - 整体比例。
+
+                        5. 补充参考图可能来自同一商品家族的其他 SKU。此时只能使用其已经确认的共有结构，不得继承其颜色、花纹、Logo、装饰、尺寸表现或其他可变属性。
+
+                        6. 参考图用于锁定商品身份和结构，不代表参考图中的悬空、平放或拍摄姿态就是商品真实使用方式。
+
+                        7. 不得加入其他 SKU 的颜色、花纹、配件、按钮、结构或外观。
+
+                        8. 当多张参考图存在非核心拍摄差异时，以 identity_lock 和主参考图为准。
+
+                        9. 当参考图之间存在真实结构冲突且 identity_lock 未能消解时，采用不会展示争议结构的中性角度，不得自行选择或拼接。
+
+                        # 可见证据与禁止猜测
+
+                        1. 任何内部结构、隐藏部件、隔层、开口、接口、连接件、固定配件、背面结构和底部结构，都只能依据以下证据表现：
+
+                        - 参考图中清晰可见；
+                        - identity_lock 明确记录；
+                        - product_profile 明确验证。
+
+                        2. 如果当前 design 要求展示某个内部或隐藏细节，但参考图、identity_lock 和 product_profile 均未提供可靠依据，必须静默将画面改为外观、关闭状态或其他有证据支持的角度。
+
+                        3. 不得依据商品类别常识推断内部隔层、线路、零件、容量、结构、接口或配件。
+
+                        4. 不得补全被遮挡但无法从其他参考图验证的结构。
+
+                        5. 不得因为画面看起来更完整而添加未提供的配件、内容物或装饰部件。
+
+                        6. 必须在最终英文 Prompt 中明确表达：
+
+                        Any internal structure, hidden component, compartment, opening mechanism, connector, accessory or back-side detail must be reproduced only when clearly supported by the provided reference images or verified product facts. Never infer or invent unseen structure.
+
+                        # 精确部件数量硬约束
+
+                        1. 首先从 {{identity_lock}} 和 {{product_profile}} 中提取所有明确且可靠的部件数量。
+
+                        2. 每一个明确数量都必须在最终英文 Prompt 第一段写成：
+
+                        The reference product has exactly [number] [specific component name].
+
+                        3. 紧接着必须写：
+
+                        Keep exactly this verified component count and arrangement. No extra, missing, merged, split or duplicated components.
+
+                        4. 不得将精确数量改写为“多个”“若干”“大约”或其他模糊表达。
+
+                        5. 不得在 Prompt 中提及任何其他候选数量。
+
+                        6. 如果完整商品需要展示精确数量结构，必须选择容易目视计数的正面、接近俯视或轻微三分之四机位。
+
+                        7. 各重复部件应彼此分离、轮廓清晰、可以逐一辨认。
+
+                        8. 避免极端透视、严重遮挡、交叉重叠、镜像、反射和重复残影。
+
+                        9. 不得增加、减少、复制、合并、拆分、错位或改变任何具有明确数量的部件。
+
+                        10. 如果某个数量无法从 identity_lock 或 product_profile 中可靠确认，不得自行写出精确数量。
+
+                        # 真实使用关系
+
+                        {{product_profile}} 中的 usage_relationship 是商品真实使用关系的强制约束。
+
+                        先判断当前 design 属于：
+
+                        - 真人使用场景；
+                        - 商品静态展示；
+                        - 结构细节展示。
+
+                        ## 真人使用场景
+
+                        真人使用场景必须准确描述商品与人物、身体部位、手、安装位置、承载面或配套物体之间已经确认的：
+
+                        - 佩戴关系；
+                        - 接触关系；
+                        - 握持关系；
+                        - 涂抹关系；
+                        - 安装关系；
+                        - 悬挂关系；
+                        - 放置方向；
+                        - 操作方式；
+                        - 商品朝向；
+                        - 受力关系。
+
+                        如果只有出现人物、手部或身体部位才能正确解释商品用途，就必须出现相应人物或身体部位。
+
+                        当前 design 即使要求“无人”或“桌面摆拍”，只要与已验证的真实使用方式冲突，就必须静默纠正。
+
+                        真人必须实际正确使用商品，不能只站在商品旁边充当装饰。
+
+                        必须包含以下英文指令：
+
+                        Show the product in its verified real-world use position and contact relationship. Do not depict it as a freestanding object unless the verified product facts explicitly state that it is freestanding.
+
+                        ## 商品静态展示
+
+                        静态展示只允许用于外观、结构、细节、规格或配件说明。
+
+                        采用参考图支持的中性展示姿态、合理平放、悬浮或真实支撑方式。
+
+                        不得让任何非承重、非支撑用途的功能部件充当底座、桌腿或支撑结构。
+
+                        不得把商品表现成可以自行站立的动物、机器人、家具、玩具或装饰摆件。
+
+                        如果 usage_relationship 为空或证据不足，只能采用不会暗示新用途的中性商品展示，不得根据商品形状猜测使用方式。
+
+                        ## 结构细节展示
+
+                        结构细节展示必须以参考图、identity_lock 或 product_profile 中已经验证的结构为对象。
+
+                        只能放大、标注或拆分画面中已有证据支持的结构，不得生成虚构剖面、虚构爆炸图、虚构内部零件或没有证据支持的工作原理示意。
+
+                        # 人物规则
+
+                        1. 人物不是禁止项。
+
+                        2. 对需要穿戴、手持、接触身体、涂抹、携带、操作或需要人物尺度才能理解的商品，应执行 design 中正确的人物使用场景。
+
+                        3. 人物的五官、肤色、发型、穿着和生活环境应自然符合目标站点，但不得使用国旗、民族服饰、宗教符号或刻板化文化元素。
+
+                        4. 人物动作必须自然、正确，商品仍然是画面主角。
+
+                        5. 人物、头发、手、衣物或道具不得严重遮挡商品关键结构。
+
+                        6. 商品与人物之间的接触位置、佩戴方向、握持方式和操作方式必须清楚可见。
+
+                        7. 对危险、受管制、具有刺激性、需要专业资质或特殊防护条件的商品，不得自动加入轻松生活化人物使用场景。
+
+                        8. {{product_profile}} 未提供可核验的安全条件和防护要求时，危险或受管制商品改为无人中性展示。
+
+                        # 场景与构图
+
+                        1. 固定1:1正方形画布，画面内容铺满画布。
+
+                        2. 不得输出3:4、9:16、竖版海报、横版海报或其他画幅比例指令。
+
+                        3. 采用真实商业产品摄影和成熟的 Shopee 商品图片视觉设计。
+
+                        4. 商品必须完整清楚，关键结构无遮挡，并在缩略图状态下仍可辨认。
+
+                        5. 人物、场景和道具必须服务当前卖点，不能抢夺商品主体。
+
+                        6. 在不违反商品身份、精确数量、可见证据和真实使用关系的前提下，保留当前 design 的销售任务、场景调性、构图差异和本地化氛围。
+
+                        7. 不要把所有图片都改成相同的白底商品图。
+
+                        8. 不要机械重复上一张图片的场景、构图、人物姿态和文字结构。
+
+                        9. 根据方形画布重新安排商品主体、人物和文字区域，不得沿用狭长竖版海报排版。
+
+                        10. 当前 design 存在消费者文案时，必须预留明确、完整且具有足够对比度的专用文字区域。
+
+                        11. 优先使用 design 明确指定的文字位置。
+
+                        12. 如果 design 没有明确文字位置，则在方形画布顶部预留25%–30%的专用文字区域，商品、人物面部和商品关键结构不得进入该区域。
+
+                        13. 不得同时模糊地要求“顶部和底部都留白”。必须选择一个主要文字区域，并明确文字和商品的相对位置。
+
+                        # 输出前语言闸门（强制）
+
+                        在生成最终 Prompt 前，必须静默执行以下检查；任何一项不通过，都必须先重写消费者文案，不得直接输出：
+
+                        1. SG：消费者文案为自然新加坡电商英语。
+
+                        2. PH：消费者文案为自然菲律宾电商英语。
+
+                        3. TH：每一行消费者文案都必须包含正确、完整的泰文字符，不得以英语句子替代；真实品牌、型号、数字和单位除外。
+
+                        4. VN：消费者文案必须为自然越南语并保留完整变音符号，不得以英语句子或无声调越南语替代；真实品牌、型号、数字和单位除外。
+
+                        5. MY：消费者文案必须为自然 Bahasa Malaysia，不得输出英语句子，也不得使用印度尼西亚地区词汇；真实品牌、型号、数字和单位除外。
+
+                        6. ID：消费者文案必须为自然 Bahasa Indonesia，不得输出英语句子，也不得使用马来西亚马来语地区词汇；真实品牌、型号、数字和单位除外。
+
+                        7. TW：消费者文案必须为台湾繁体中文，不得输出英语句子、简体中文或大陆地区用语；真实品牌、型号、数字和单位除外。
+
+                        8. BR：消费者文案必须为自然巴西葡萄牙语 pt-BR，并保留正确重音符号，不得输出英语句子或欧洲葡萄牙语表达；真实品牌、型号、数字和单位除外。
+
+                        9. 最终英文 Prompt 的画面控制部分使用英语，与消费者文案的目标语言互不替代。不得为了让生图模型更容易理解而把消费者文案翻译回英语。
+
+                        10. 不得在最终输出中描述本检查过程、目标语言名称或站点代码。
+
+                        # 最终英文 Prompt 固定组织顺序
+
+                        最终英文 Prompt 必须严格按照以下顺序组织：
+
+                        第一段：
+
+                        - 参考图优先级；
+                        - 商品身份；
+                        - 主外观；
+                        - 已验证的内部与外部结构；
+                        - 所有明确的精确部件数量；
+                        - 禁止混入其他 SKU 可变属性。
+
+                        不得先写场景。
+
+                        第二段：
+
+                        - 真实使用关系；
+                        - 商品朝向；
+                        - 人物；
+                        - 身体接触点；
+                        - 握持、安装或真实支撑关系。
+
+                        如果 design 中存在错误摆放方式，在这一段静默纠正。
+
+                        第三段：
+
+                        - 1:1正方形构图；
+                        - 场景；
+                        - 景别；
+                        - 机位；
+                        - 主体占比；
+                        - 明确的专用文字区域；
+                        - 商品与文字区域的相对位置；
+                        - 光线；
+                        - 配色；
+                        - 材质；
+                        - 摄影风格。
+
+                        第四段：
+
+                        输出强制文字渲染指令，明确消费者文案必须实际显示在图片中、每行只能出现一次、不得生成无文字图片。
+
+                        根据 design 指定一个明确文字区域。design 没有明确位置时，在1:1画布顶部预留25%–30%的专用高对比度文字区域。
+
+                        随后逐行列出唯一允许显示的目标站点消费者文案，不得添加字段名、角色标签、序号、项目符号、引号或解释。
+
+                        第五段：
+
+                        用一句简短英文再次强调：
+
+                        - 精确部件数量；
+                        - 不得复制部件；
+                        - 不得改变商品结构；
+                        - 不得虚构内部结构；
+                        - 不得采用错误使用姿态。
+
+                        不要连续堆叠大量意思相同的否定词。
+
+                        # 图片文字强制渲染规则
+
+                        1. 当前 design 中存在消费者文案时，消费者文案是必须实际显示在最终图片中的视觉元素，不是可选建议。
+
+                        2. 最终英文 Prompt 必须明确写出：
+
+                        The localized copy listed below is mandatory visible text and must appear in the final image. Render every listed line exactly once. Do not omit, translate, paraphrase, shorten, replace or invent any text. Do not produce a text-free image.
+
+                        3. 如果目标站点为 TH，紧接着必须加入：
+
+                        Render the Thai text with complete and correct Thai characters, vowel marks and tone marks. Use a clean, highly legible modern Thai sans-serif typeface. Do not replace Thai characters with Latin letters, symbols or approximate glyphs.
+
+                        4. 如果目标站点为 VN，紧接着必须加入：
+
+                        Render the Vietnamese text with complete and correct diacritics. Use a clean, highly legible modern sans-serif typeface. Do not omit or replace any Vietnamese tone marks or vowel marks.
+
+                        5. 如果目标站点为 TW，紧接着必须加入：
+
+                        Render all Chinese text in Traditional Chinese characters exactly as listed. Do not convert it to Simplified Chinese.
+
+                        6. 如果目标站点为 BR，必须完整保留葡萄牙语重音符号和特殊字符。
+
+                        7. 如果目标站点为 MY、ID、SG 或 PH，必须保持目标语言的正确拼写、大小写和标点。
+
+                        8. 如果 design 已明确文字位置，最终英文 Prompt 必须准确描述该文字区域。
+
+                        9. 如果 design 没有明确文字位置，最终英文 Prompt 必须写出：
+
+                        Reserve the top 25–30% of the square canvas as a dedicated high-contrast text area with safe margins. Keep the product, the model's face and all key product structures outside this text area.
+
+                        10. 文字必须满足：
+
+                        - 主标题字号最大；
+                        - 副标题字号次之；
+                        - 短标注字号最小；
+                        - 字形完整；
+                        - 高对比度；
+                        - 清晰可读；
+                        - 不覆盖商品；
+                        - 不覆盖人物面部；
+                        - 不覆盖商品关键结构；
+                        - 不贴近画面边缘；
+                        - 不使用过细或难以辨认的装饰字体。
+
+                        11. 图片中只允许显示最终本地化后的消费者文案，以及参考商品本身真实存在的品牌或型号。
+
+                        12. 不得显示中文设计说明、站点代码、语言名称、序号、页面类型、内部标签、字段名或 Prompt 指令。
+
+                        13. 不得显示以下文字或标签：
+
+                        主标题
+                        副标题
+                        短标注
+                        Headline
+                        Subheadline
+                        Callouts
+                        screen
+                        module
+                        layout
+                        page type
+                        mandatory text
+                        localized copy
+                        text area
+
+                        14. 最终英文 Prompt 必须写出：
+
+                        Do not render the labels Headline, Subheadline or Callouts. Do not add any other text.
+
+                        15. 随后直接逐行列出真正需要显示的目标站点消费者文案。
+
+                        16. 消费者文案前不得添加 Headline、Subheadline、Callout、标题、文案、Text 或其他字段名。
+
+                        17. 消费者文案不得使用项目符号、序号、Markdown、代码围栏或解释性前缀。
+
+                        18. 每一行消费者文案必须出现且只能出现一次。
+
+                        19. 原设计没有副标题或短标注时，不得强行补齐。
+
+                        20. 消费者文案过长时，应在不改变事实、数字、单位、限定条件和宣传强度的前提下进行母语级缩短，使其适合方形电商图片排版。
+
+                        21. 不得因为担心文字拼写错误而主动省略全部文字。
+
+                        # 最终英文 Prompt 的文字段落模板
+
+                        当前 design 包含消费者文案时，最终英文 Prompt 第四段必须按照以下结构生成：
+
+                        The localized copy listed below is mandatory visible text and must appear in the final image. Render every listed line exactly once. Do not omit, translate, paraphrase, shorten, replace or invent any text. Do not produce a text-free image.
+
+                        根据目标站点加入对应语言字形规则。
+
+                        根据 design 指定文字区域；没有明确指定时加入：
+
+                        Reserve the top 25–30% of the square canvas as a dedicated high-contrast text area with safe margins. Keep the product, the model's face and all key product structures outside this text area.
+
+                        然后加入：
+
+                        Do not render the labels Headline, Subheadline or Callouts. Do not add any other text.
+
+                        最后直接逐行列出本地化消费者文案，例如：
+
+                        目标语言主标题
+                        目标语言副标题
+                        目标语言短标注1
+                        目标语言短标注2
+
+                        不得把“目标语言主标题”等示例字段名输出到真实 Prompt 中。
+
+                        # 输出格式
+
+                        只输出一条完整纯文本生图 Prompt。
+
+                        画面描述、摄影指令、商品约束、文字渲染指令和禁止事项必须使用英文。
+
+                        唯一允许出现的非英文内容是：
+
+                        - 需要实际显示在图片上的目标站点消费者文案；
+                        - 参考商品原有的真实品牌或型号。
+
+                        除 SG 和 PH 外，消费者文案不得使用英语句子；真实品牌、型号、数字和单位除外。若消费者文案未通过“输出前语言闸门”，必须先重写，不能输出最终 Prompt。
+
+                        不要输出 JSON。
+
+                        不要输出 Markdown。
+
+                        不要输出分析、翻译说明、语言对照或任何前后解释。
+                - name: stableSystemPrompt
+                  input:
+                    type: string
+                    value: ""
+                - name: canContinue
+                  input:
+                    type: boolean
+                    value: false
+                - name: loopPromptVersion
+                  input:
+                    type: string
+                    value: ""
+                - name: loopPromptName
+                  input:
+                    type: string
+                    value: ""
+                - name: loopPromptId
+                  input:
+                    type: string
+                    value: ""
+            node_inputs:
+                - name: design
+                  input:
+                    type: string
+                    value:
+                        path: design_item
+                        ref_node: "184039"
+                - name: identity_lock
+                  input:
+                    value:
+                        path: identity_lock
+                        ref_node: "136571"
+                - name: product_profile
+                  input:
+                    value:
+                        path: product_profile
+                        ref_node: "136571"
+                - name: zhandian
+                  input:
+                    value:
+                        path: zhandian
+                        ref_node: "100001"
+            node_outputs:
+                output:
+                    type: string
+                    value: null
+                reasoning_content:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 600000
+        - id: "104951"
+          type: plugin
+          title: 生成详情图
+          icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Plugin-v2.jpg
+          description: "图片模型"
+          position:
+            x: 499.644491536549
+            y: 99.99999999999996
+          parameters:
+            apiParam:
+                - name: apiID
+                  input:
+                    type: string
+                    value: "7631560961102528512"
+                - name: apiName
+                  input:
+                    type: string
+                    value: "g2_generate_image"
+                - name: pluginID
+                  input:
+                    type: string
+                    value: "7631560961102512128"
+                - name: pluginName
+                  input:
+                    type: string
+                    value: "GT2_图片生成"
+                - name: pluginVersion
+                  input:
+                    type: string
+                    value: ""
+                - name: tips
+                  input:
+                    type: string
+                    value: ""
+                - name: outDocLink
+                  input:
+                    type: string
+                    value: ""
+            node_inputs:
+                - name: key
+                  input:
+                    type: string
+                    value: ""
+                - name: prompt
+                  input:
+                    value:
+                        path: output
+                        ref_node: "180300"
+                - name: asyn
+                  input:
+                    type: boolean
+                    value: true
+                - name: image_urls
+                  input:
+                    type: list
+                    items:
+                        type: string
+                        value: null
+                    value:
+                        path: image_urls
+                        ref_node: "174684"
+                - name: ratio
+                  input:
+                    type: string
+                    value: "1:1"
+                - name: resolution
+                  input:
+                    type: string
+                    value: "1K"
+            node_outputs:
+                code:
+                    type: integer
+                    value: null
+                data:
+                    type: object
+                    properties:
+                        id:
+                            type: string
+                            value: null
+                        url:
+                            type: string
+                            value: null
+                    value: null
+                message:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                timeoutMs: 600000
+      edges:
+        - source_node: "184039"
+          target_node: "180300"
+          source_port: batch-function-inline-output
+        - source_node: "180300"
+          target_node: "104951"
+        - source_node: "104951"
+          target_node: "184039"
+          target_port: batch-function-inline-input
+    - id: "174684"
+      type: code
+      title: 组装详情图参考图数组
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 5032.8028934015565
+        y: -263.9447888369074
+      parameters:
+        code: |-
+            async function main({ params }) {
+              const url = String(params.image_url || "").trim();
+
+              if (!url) {
+                throw new Error("标准商品图 URL 为空");
+              }
+
+              return {
+                image_urls: [url]
+              };
+            }
+        language: 5
+        node_inputs:
+            - name: image_url
+              input:
+                value:
+                    path: Group1
+                    ref_node: "107993"
+        node_outputs:
+            image_urls:
+                type: list
+                items:
+                    type: string
+                    value: null
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "186420"
+      type: variable_merge
+      title: 最终结果对象
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/VariableMerge-icon.jpg
+      description: "对多个分支的输出进行聚合处理"
+      position:
+        x: 6212.165969082429
+        y: 336.54531263275317
+      parameters:
+        mergeGroups:
+            - name: Group1
+              variables:
+                - schema: []
+                  type: object
+                  value:
+                    content:
+                        blockID: "164323"
+                        name: result
+                        source: block-output
+                    rawMeta:
+                        type: 6
+                    type: ref
+                - schema: []
+                  type: object
+                  value:
+                    content:
+                        blockID: "177089"
+                        name: result
+                        source: block-output
+                    rawMeta:
+                        type: 6
+                    type: ref
+        node_outputs:
+            Group1:
+                type: object
+                value: null
+    - id: "177089"
+      type: code
+      title: 组装待补资料结果
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 6062.0984750498355
+        y: 1053.1954612004201
+      parameters:
+        code: |-
+            async function main({ params }) {
+              return {
+                result: {
+                  status: "needs_input",
+                  standard_product_image_url: "",
+                  competitor_summary: "未启用竞品分析",
+                  result_image_urls: [],
+                  message: String(
+                    params.reason ||
+                    "无法可靠确认主商品，请补充清晰单品图或明确具体款式"
+                  )
+                }
+              };
+            }
+        language: 5
+        node_inputs:
+            - name: reason
+              input:
+                value:
+                    path: needs_input_reason
+                    ref_node: "136571"
+        node_outputs:
+            result:
+                type: object
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "164323"
+      type: code
+      title: 组装生成完成结果
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 5903.108089350691
+        y: -52.41201478986509
+      parameters:
+        code: |-
+            async function main({ params }) {
+              return {
+                result: {
+                  status: "completed",
+                  standard_product_image_url: String(
+                    params.standard_product_image_url || ""
+                  ),
+                  competitor_summary: "未启用竞品分析",
+                  result_image_urls: Array.isArray(params.result_image_urls)
+                    ? params.result_image_urls
+                    : [],
+                  message: "生成完成"
+                }
+              };
+            }
+        language: 5
+        node_inputs:
+            - name: standard_product_image_url
+              input:
+                value:
+                    path: Group1
+                    ref_node: "107993"
+            - name: result_image_urls
+              input:
+                type: list
+                items:
+                    type: string
+                    value: null
+                value:
+                    path: result_image_urls
+                    ref_node: "184039"
+        node_outputs:
+            result:
+                type: object
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "157190"
+      type: code
+      title: 拆分最终结果
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 6692.165969082429
+        y: 336.54531263275317
+      parameters:
+        code: |-
+            async function main({ params }) {
+              const result = params.result || {};
+
+              return {
+                status: String(result.status || "failed"),
+                standard_image_url: String(
+                  result.standard_product_image_url || ""
+                ),
+                competitor_summary: String(
+                  result.competitor_summary || "未启用竞品分析"
+                ),
+                result_image_urls: Array.isArray(result.result_image_urls)
+                  ? result.result_image_urls
+                  : [],
+                message: String(result.message || "")
+              };
+            }
+        language: 5
+        node_inputs:
+            - name: result
+              input:
+                value:
+                    path: Group1
+                    ref_node: "186420"
+        node_outputs:
+            competitor_summary:
+                type: string
+                value: null
+            message:
+                type: string
+                value: null
+            result_image_urls:
+                type: list
+                items:
+                    type: string
+                    value: null
+                value: null
+            standard_image_url:
+                type: string
+                value: null
+            status:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "178564"
+      type: batch
+      title: 按索引抠图
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Batch-v2.jpg
+      description: "通过设定批量运行次数和逻辑，运行批处理体内的任务"
+      position:
+        x: 2645.901883784227
+        y: 360.6476775129588
+      canvas_position:
+        x: 2878.701356440852
+        y: 604.0154091706563
+      parameters:
+        batchSize:
+            type: integer
+            value:
+                content: 10
+                rawMeta:
+                    type: 2
+                type: literal
+        concurrentSize:
+            type: integer
+            value:
+                content: 1
+                rawMeta:
+                    type: 2
+                type: literal
+        node_inputs:
+            - name: images
+              input:
+                value:
+                    path: product_images
+                    ref_node: "100001"
+        node_outputs:
+            output:
+                value:
+                    type: image
+                    items:
+                        type: string
+                        value: null
+                    value:
+                        path: data
+                        ref_node: "193360"
+      nodes:
+        - id: "193360"
+          type: plugin
+          title: cutout
+          icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Plugin-v2.jpg
+          description: ""
+          position:
+            x: 0
+            y: 100
+          parameters:
+            apiParam:
+                - name: apiID
+                  input:
+                    type: string
+                    value: "7438919188246429731"
+                - name: apiName
+                  input:
+                    type: string
+                    value: "cutout"
+                - name: pluginID
+                  input:
+                    type: string
+                    value: "7438919188246413347"
+                - name: pluginName
+                  input:
+                    type: string
+                    value: "智能抠图"
+                - name: pluginVersion
+                  input:
+                    type: string
+                    value: ""
+                - name: tips
+                  input:
+                    type: string
+                    value: ""
+                - name: outDocLink
+                  input:
+                    type: string
+                    value: ""
+            node_inputs:
+                - name: url
+                  input:
+                    type: image
+                    value:
+                        path: images
+                        ref_node: "178564"
+                - name: only_mask
+                  input:
+                    type: string
+                    value: "0"
+                - name: output_mode
+                  input:
+                    type: string
+                    value: "0"
+                - name: prompt
+                  input:
+                    type: string
+                    value:
+                        path: cutout_prompt
+                        ref_node: "1652632"
+            node_outputs:
+                data:
+                    type: image
+                    value: null
+                    description: 透明背景图，在输出模式为透明背景时生效
+                mask:
+                    type: string
+                    value: null
+                    description: 抠图区域蒙板矢量图，在输出模式为蒙版矢量图时生效
+                msg:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                timeoutMs: 180000
+        - id: "1652632"
+          type: code
+          title: 组装抠图 Prompt
+          icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+          description: "编写代码，处理输入变量来生成返回值"
+          version: v2
+          position:
+            x: -465.5989453132504
+            y: 99.99999999999999
+          parameters:
+            code: |-
+                async function main({ params }) {
+                  const productName = String(
+                    params.product_name || "target product"
+                  ).trim();
+
+                  const identityLock = String(
+                    params.identity_lock || ""
+                  ).trim();
+
+                  return {
+                    cutout_prompt: `Isolate exactly one complete instance of the target product: ${productName}.
+
+                Identity reference: ${identityLock}
+
+                If the image contains duplicates, multiple views, variants, packaging, accessories, people, hands, props, text, or other objects, keep only the single largest, clearest, most complete product instance that matches the identity reference. Remove everything else.
+
+                Preserve the selected instance's exact visible pixels, silhouette, component count, arrangement, proportions, colors, controls, ports, logos, and markings. Do not redraw, repair, extend, merge, add, remove, or invent any product part. Return only the selected product with a transparent background.`
+                  };
+                }
+            language: 5
+            node_outputs:
+                cutout_prompt:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+      edges:
+        - source_node: "1652632"
+          target_node: "193360"
+        - source_node: "193360"
+          target_node: "178564"
+          target_port: batch-function-inline-input
+        - source_node: "178564"
+          target_node: "1652632"
+          source_port: batch-function-inline-output
+edges:
+    - source_node: "100001"
+      target_node: "105251"
+    - source_node: "157190"
+      target_node: "900001"
+    - source_node: "105251"
+      target_node: "151076"
+      source_port: batch-output
+    - source_node: "151076"
+      target_node: "136571"
+    - source_node: "136571"
+      target_node: "173035"
+    - source_node: "173035"
+      target_node: "152788"
+      source_port: "true"
+    - source_node: "173035"
+      target_node: "177089"
+      source_port: "false"
+    - source_node: "152788"
+      target_node: "183194"
+    - source_node: "183194"
+      target_node: "128405"
+      source_port: "true"
+    - source_node: "183194"
+      target_node: "162643"
+      source_port: "false"
+    - source_node: "162643"
+      target_node: "108877"
+    - source_node: "108877"
+      target_node: "107993"
+    - source_node: "128405"
+      target_node: "107993"
+    - source_node: "107993"
+      target_node: "111955"
+    - source_node: "194814"
+      target_node: "153173"
+    - source_node: "153173"
+      target_node: "149650"
+    - source_node: "111955"
+      target_node: "183337"
+    - source_node: "183337"
+      target_node: "174684"
+    - source_node: "174684"
+      target_node: "184039"
+    - source_node: "184039"
+      target_node: "164323"
+      source_port: batch-output
+    - source_node: "164323"
+      target_node: "186420"
+    - source_node: "177089"
+      target_node: "186420"
+    - source_node: "186420"
+      target_node: "157190"
