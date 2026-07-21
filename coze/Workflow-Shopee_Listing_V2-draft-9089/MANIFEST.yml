@@ -1,0 +1,11 @@
+type: Workflow
+version: 1.0.0
+main:
+    id: 7663922908112846886
+    name: Shopee_Listing_V2
+    desc: Shopee Listing 通用出图 V2
+    icon: plugin_icon/workflow.png
+    version: ""
+    flowMode: 0
+    commitId: ""
+sub: []
