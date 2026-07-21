@@ -1,0 +1,13 @@
+config/*.local.env
+config/config.json
+bridge/.venv/
+bridge/**/__pycache__/
+bridge/data/
+*.pyc
+.pytest_cache/
+*.mp4
+*.rar
+*.exe
+.superpowers/
+MoneyPrinterTurbo/
+juicer cup/

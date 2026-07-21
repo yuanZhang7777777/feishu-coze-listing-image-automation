@@ -1,0 +1,23 @@
+[Unit]
+Description=Feishu Coze Listing Image Bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=listingbridge
+Group=listingbridge
+WorkingDirectory=/opt/listing-bridge
+EnvironmentFile=/etc/listing-bridge.env
+ExecStart=/opt/listing-bridge/.venv/bin/gunicorn --workers 1 --threads 8 --timeout 120 --bind 0.0.0.0:18082 app:app
+Restart=always
+RestartSec=5
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/listing-bridge
+
+[Install]
+WantedBy=multi-user.target
+
