@@ -224,7 +224,7 @@ class JobStore:
             row = conn.execute(
                 "SELECT * FROM jobs WHERE record_id = ?", (record_id,)
             ).fetchone()
-            if row and row["status"] in self.ACTIVE | {"completed"}:
+            if row and row["status"] in self.ACTIVE | {"completed", "partial"}:
                 return False, dict(row)
             conn.execute(
                 """
@@ -620,8 +620,13 @@ class BridgeService:
             )
             return
 
+        is_partial = output["status"] in {
+            "partial",
+            "partially_completed",
+            "部分完成",
+        }
         urls = output["result_image_urls"]
-        if not urls:
+        if not urls and not is_partial:
             raise ValueError("Coze 已成功结束，但没有返回 Listing 图片链接")
         standard_url = output["standard_product_image_url"]
         if not standard_url:
@@ -632,8 +637,9 @@ class BridgeService:
         listing_attachments = self.upload_urls(
             record_id, execute_id, urls, "listing"
         )
+        final_status = "partial" if is_partial else "completed"
         fields: Dict[str, Any] = {
-            "任务状态": "已完成",
+            "任务状态": "失败" if is_partial else "已完成",
             "竞品分析摘要": output["competitor_summary"],
             "Listing 产出图": listing_attachments,
             "标准商品图": standard_attachment,
@@ -641,8 +647,10 @@ class BridgeService:
             "更新时间": int(time.time() * 1000),
         }
         self.feishu.update_record(record_id, fields)
-        self.store.update(record_id, "completed")
-        LOG.info("job completed record_id=%s images=%s", record_id, len(urls))
+        self.store.update(record_id, final_status)
+        LOG.info(
+            "job %s record_id=%s images=%s", final_status, record_id, len(urls)
+        )
 
 
 def create_app(config: Optional[Config] = None) -> Flask:
